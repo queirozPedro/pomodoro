@@ -1,0 +1,32 @@
+@startuml "Diagrama de Casos de Uso"
+
+actor "Usuário" as Usuario
+
+left to right direction
+
+rectangle "Sistema Pomodoro" {
+
+    usecase "Cadastrar Limiares de Tempo" as CadastrarTempo
+
+    usecase "Iniciar Pomodoro" as IniciarPomodoro
+    usecase "Pausar Pomodoro" as PausarPomodoro
+    usecase "Exibir Cronômetro" as ExibirCronometro
+
+    usecase "Notificar Pausa" as NotificarPausa
+    usecase "Alarme para Início" as AlarmeInicio
+    
+    usecase "Gerar Relatório Gráfico" as GerarRelatorio
+
+    Usuario -> CadastrarTempo
+    Usuario -> IniciarPomodoro
+    Usuario -> GerarRelatorio
+    
+    IniciarPomodoro -> ExibirCronometro : "<<include>>"
+    IniciarPomodoro -> AlarmeInicio : "<<include>>"
+
+    PausarPomodoro ..|> IniciarPomodoro : "<<extend>>"
+    AlarmeInicio -> NotificarPausa : "<<include>>"
+    
+}
+
+@enduml

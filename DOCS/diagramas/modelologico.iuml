@@ -1,0 +1,48 @@
+@startuml "Modelo Lógico de Dados"
+
+entity Usuario {
+    * usuario_id : INT <<PK>>
+    --
+    historicoPomodoro : List<Pomodoro>
+}
+
+entity Pomodoro {
+    * pomodoro_id : INT <<PK>>
+    * usuario_id : INT <<FK>>
+    --
+    tempoEstudo : INT
+    tempoPausa : INT
+    data : DATE
+    concluido : BOOLEAN
+}
+
+entity Temporizador {
+    * temporizador_id : INT <<PK>>
+    * pomodoro_id : INT <<FK>>
+    --
+    tempoAtual : INT
+    rodando : BOOLEAN
+}
+
+entity Notificacao {
+    * notificacao_id : INT <<PK>>
+    * pomodoro_id : INT <<FK>>
+    --
+    mensagem : STRING
+}
+
+entity Relatorio {
+    * relatorio_id : INT <<PK>>
+    * usuario_id : INT <<FK>>
+    --
+    dadosPomodoro : List<Pomodoro>
+}
+
+' Relacionamentos
+Usuario ||--o{ Pomodoro : "Usa"
+Usuario ||--o{ Relatorio : "Gera"
+Pomodoro ||--|| Temporizador : "Controla"
+Pomodoro ||--o{ Notificacao : "Exibe Alerta"
+Relatorio ||--o{ Pomodoro : "Usa dados"
+
+@enduml

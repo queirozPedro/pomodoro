@@ -8,6 +8,6 @@ Links para acesso da documentação
 
 [**Artigo do Projeto no Overleaf**](https://www.overleaf.com/read/sprtbrksmwvd#c80fc1).
 
-Diagramas de Classes e de Casos de Uso estão disponíveis na pasta [**docs/diagramas**](https://github.com/queirozPedro/pomodoro/tree/main/DOCS/diagramas) assim como o Modelo Lógico de Dados.
+Diagramas de Classes e de Casos de Uso estão disponíveis na pasta [**docs/diagramas**](https://github.com/queirozPedro/pomodoro/tree/main/docs/diagramas) assim como o Modelo Lógico de Dados.
 
-A <strong>Definição do Projeto</strong> e o <strong>Plano Especificação Formal do Projeto</strong> estão disponíveis na pasta [**docs**](https://github.com/queirozPedro/pomodoro/tree/main/DOCS).
+A <strong>Definição do Projeto</strong> e o <strong>Plano Especificação Formal do Projeto</strong> estão disponíveis na pasta [**docs**](https://github.com/queirozPedro/pomodoro/tree/main/docs).

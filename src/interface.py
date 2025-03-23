@@ -84,8 +84,8 @@ class Interface(tk.Tk):
 
     def criar_pomodoro(self):
         # Cria o pomodoro e inicia o estudo
-        self.pomodoro = Pomodoro(self, Config(1, 1, 2))
-        self.pomodoro.iniciar_estudo()
+        self.pomodoro = Pomodoro(self, Config())
+        self.pomodoro.iniciar_pomodoro()
 
 
     def criar_botoes_controle(self):
@@ -96,15 +96,6 @@ class Interface(tk.Tk):
         self.botao_reiniciar.pack(side="right", expand=False, padx=10, pady=5)
 
 
-    def exibir_configuracoes(self):
-        self.popup_menu = tk.Menu(self, tearoff=0)
-        self.popup_menu.add_command(label="Quantidade de Sessões", command=lambda: print("Opção 1 selecionada"))
-        self.popup_menu.add_command(label="Tempo de Estudo", command=lambda: print("Opção 1 selecionada"))
-        self.popup_menu.add_command(label="Tempo de Pausa", command=lambda: print("Opção 2 selecionada"))
-        self.popup_menu.add_separator()
-        self.popup_menu.add_command(label="Fechar", command=self.destroy)
-
-
-    def atualizar_label_cronometro(self, novo_texto):
+    def atualizar_tempo_cronometro(self, novo_texto):
         self.label_tempo.config(text=novo_texto)  # Atualiza a interface
         

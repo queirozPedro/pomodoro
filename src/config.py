@@ -1,5 +1,5 @@
 class Config():
-    def __init__(self, tempo_estudo = 25, tempo_pausa = 5, quantidade_ciclos = 5):
+    def __init__(self, tempo_estudo = 25, tempo_pausa = 5, quantidade_ciclos = 4):
         self.tempo_estudo = tempo_estudo
         self.tempo_pausa = tempo_pausa
         self.quantidade_ciclos = quantidade_ciclos

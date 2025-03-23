@@ -23,7 +23,7 @@ class Cronometro():
     def reiniciar(self):
         self.tempo_restante_estudo = self.tempo_estudo * 60
         # Atualização na interface é feita a partir do Cronometro
-        self.interface.atualizar_label_cronometro(self.formatar_tempo()) 
+        self.interface.atualizar_label_cronometro(self.formatar_tempo(self.tempo_estudo, self.tempo_restante_estudo)) #passando dois argumentos  
         self.rodando = False
 
 

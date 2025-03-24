@@ -31,14 +31,14 @@ class Pomodoro():
         Inicia um novo ciclo de estudo ou pausa
         '''
         if self.ciclo_atual >= self.quantidade_ciclos:
-            self.interface.atualizar_tempo_cronometro("Fim do Pomodoro")
             self.rodando = False
+            self.interface.atualizar_tempo_cronometro('', self.rodando)
             return
 
         # Se for o último ciclo e não for de estudo
         if self.ciclo_atual + 1 >= self.quantidade_ciclos and not self.estudando:
-            self.interface.atualizar_tempo_cronometro("Fim do Pomodoro")
             self.rodando = False
+            self.interface.atualizar_tempo_cronometro('', self.rodando)
             return
 
         if self.estudando:

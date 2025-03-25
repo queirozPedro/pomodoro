@@ -6,9 +6,9 @@ class Pomodoro():
         self.interface = interface
 
         # Configurações do pomodoro
-        self.tempo_estudo = config.get_tempo_estudo()
-        self.tempo_pausa = config.get_tempo_pausa()
-        self.quantidade_ciclos = config.get_quantidade_ciclos()
+        self.tempo_estudo = config.tempo_estudo
+        self.tempo_pausa = config.tempo_pausa
+        self.quantidade_ciclos = config.quantidade_ciclos
 
         # Contagem de ciclos e estado e o id do after
         self.ciclo_atual = 0
@@ -115,3 +115,20 @@ class Pomodoro():
         if self.cronometro.esta_rodando():
             self.cronometro.atualizar_tempo()
             self.agendar_atualizacao()
+
+
+    def encerrar_pomodoro(self):
+        '''
+        Encerra o Pomodoro, limpa a janela e retorna à tela inicial
+        '''
+        if self.rodando:
+            self.rodando = False
+            if self.cronometro:
+                self.cronometro.pausar()
+
+            if self.after_id:
+                self.interface.after_cancel(self.after_id)
+        
+        # Limpa a tela e exibe os controles iniciais
+        self.interface.limpar_janela()
+        self.interface.exibir_controles_iniciais()

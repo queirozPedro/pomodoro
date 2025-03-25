@@ -1,9 +1,13 @@
+import sqlite3
+from datetime import datetime
 from cronometro import Cronometro
 
 class Pomodoro():
-    def __init__(self, interface, config):
+    def __init__(self, interface, config, db_connection = None):
         # Referência para a interface
         self.interface = interface
+        # self.conn = db_connection.get_connection()
+        # self.cursor = self.conn.cursor()
 
         # Configurações do pomodoro
         self.tempo_estudo = config.tempo_estudo
@@ -132,3 +136,53 @@ class Pomodoro():
         # Limpa a tela e exibe os controles iniciais
         self.interface.limpar_janela()
         self.interface.exibir_controles_iniciais()
+
+
+    # Insere dados no cronômetro
+    def salvar_cronometro(self, id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado):
+        try:
+            self.cursor.execute("""
+            INSERT INTO cronometro (id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado)
+            VALUES (?, ?, ?, ?, ?)
+            """, (id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado))
+            self.conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"Erro ao salvar cronômetro: {e}")
+            return False
+
+
+    # Salva um novo registro de Pomodoro
+    def salvar_pomodoro(self, status):
+        try:
+            data_hora = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+            self.cursor.execute("""
+            INSERT INTO pomodoro (data_hora, status)
+            VALUES (?, ?)
+            """, (data_hora, status))
+            self.conn.commit()
+            return self.cursor.lastrowid  # Retorna o ID do pomodoro inserido
+        except sqlite3.Error as e:
+            print(f"Erro ao salvar pomodoro: {e}")
+            return None
+
+
+    def criar_tabelas(self):
+        self.cursor.execute("""
+         CREATE TABLE IF NOT EXISTS pomodoro (
+            id SERIAL PRIMARY KEY,
+            data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status VARCHAR(20) NOT NULL
+        )""")
+
+        self.cursor.execute("""
+         CREATE TABLE IF NOT EXISTS cronometro (
+            id_pomodoro INTEGER PRIMARY KEY,
+            tempo_estudo INTEGER NOT NULL,
+            tempo_pausa INTEGER NOT NULL,
+            quantidade_ciclos INTEGER NOT NULL,
+            tempo_estudado INTEGER NOT NULL,
+            FOREIGN KEY (id_pomodoro) REFERENCES pomodoro(id) ON DELETE CASCADE
+        )""")
+        
+        self.conn.commit()

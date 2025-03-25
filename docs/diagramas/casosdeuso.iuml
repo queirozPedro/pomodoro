@@ -6,10 +6,12 @@ left to right direction
 
 rectangle "Sistema Pomodoro" {
 
-    usecase "Cadastrar Limiares de Tempo" as CadastrarTempo
+    usecase "Cadastrar Configuracoes" as CadastrarConfiguracoes
 
     usecase "Iniciar Pomodoro" as IniciarPomodoro
     usecase "Pausar Pomodoro" as PausarPomodoro
+    usecase "Reiniciar Pomodoro" as ReiniciarPomodoro
+    usecase "Encerrar Pomodoro" as EncerrarPomodoro	
     usecase "Exibir Cronômetro" as ExibirCronometro
 
     usecase "Notificar Pausa" as NotificarPausa
@@ -17,15 +19,17 @@ rectangle "Sistema Pomodoro" {
     
     usecase "Gerar Relatório Gráfico" as GerarRelatorio
 
-    Usuario -> CadastrarTempo
-    Usuario -> IniciarPomodoro
-    Usuario -> GerarRelatorio
+    Usuario --> IniciarPomodoro
+    Usuario -right-> CadastrarConfiguracoes
+    Usuario -right-> GerarRelatorio
     
-    IniciarPomodoro -> ExibirCronometro : "<<include>>"
-    IniciarPomodoro -> AlarmeInicio : "<<include>>"
+    IniciarPomodoro --> ExibirCronometro : "<<include>>"
+    IniciarPomodoro --> AlarmeInicio : "<<include>>"
 
-    PausarPomodoro ..|> IniciarPomodoro : "<<extend>>"
-    AlarmeInicio -> NotificarPausa : "<<include>>"
+    PausarPomodoro .up.|> IniciarPomodoro : "<<extend>>"
+    ReiniciarPomodoro .up.|> IniciarPomodoro : "<<extend>>"
+    EncerrarPomodoro .up.|> IniciarPomodoro : "<<extend>>"
+    AlarmeInicio --> NotificarPausa : "<<include>>"
     
 }
 

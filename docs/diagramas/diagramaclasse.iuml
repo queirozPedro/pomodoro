@@ -1,0 +1,64 @@
+@startuml "Diagrama"
+
+class Interface {
+  + iniciarPomodoro()
+  + gerenciarConfiguracoes()
+  + exibirRelatorio()
+}
+
+class Pomodoro {
+  - tempoEstudo: int
+  - tempoPausa: int
+  - ciclos: int
+  - cicloatual: int
+  - cronometro: Cronometro
+  - rodando: boolean
+  - estudando: boolean
+  + iniciar()
+  + pausar()
+  + reiniciar()
+  + encerrar()
+  + salvarPomodoro(status: String): int
+  + salvarCronometro(): Boolean
+}
+
+class Cronometro {
+  - tempoAtual: int
+  - tempo_restante: int
+  - tempo
+  - rodando: boolean
+  + iniciar()
+  + pausar()
+  + atualizar()
+  + formatarTempo(): String
+}
+
+class Config {
+  - tempoEstudo: int
+  - tempoPausa: int
+  - ciclos: int
+}
+
+class Relatorio {
+  + buscarPomodoros(): List
+  + buscarEstatisticas(): Map
+  + atualizarInterface()
+}
+
+class Connection{
+  + getInstance(): Instance
+  + iniciarConexao(): Connection
+  + getConnection(): Connection
+  + fecharConexao(): void
+}
+
+
+Interface "1" --> "1" Pomodoro
+Interface "1" --> "1" Config
+Interface "1" -right-> "1" Relatorio
+Pomodoro "1" --> "1" Cronometro
+Pomodoro "1" -left-> "1" Config
+Pomodoro "1" -right-> "1" Connection
+Relatorio "1" --> "1" Connection	
+
+@enduml

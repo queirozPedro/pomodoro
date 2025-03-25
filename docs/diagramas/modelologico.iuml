@@ -1,48 +1,17 @@
-@startuml "Modelo Lógico de Dados"
-
-entity Usuario {
-    * usuario_id : INT <<PK>>
-    --
-    historicoPomodoro : List<Pomodoro>
+@startuml "Modelo Lógico de Dados - Sistema Pomodoro"
+entity pomodoro {
+  * id: INTEGER <<PK>>
+  * data_hora: TEXT  -- Data e hora da sessão (default CURRENT_TIMESTAMP)
+  * status: TEXT     -- Ex: "Concluído", "Em andamento"
 }
 
-entity Pomodoro {
-    * pomodoro_id : INT <<PK>>
-    * usuario_id : INT <<FK>>
-    --
-    tempoEstudo : INT
-    tempoPausa : INT
-    data : DATE
-    concluido : BOOLEAN
+entity cronometro {
+  * id_pomodoro: INTEGER <<PK, FK>>  -- FK para pomodoro(id)
+  * tempo_estudo: INTEGER
+  * tempo_pausa: INTEGER
+  * quantidade_ciclos: INTEGER
+  * tempo_estudado: INTEGER
 }
 
-entity Temporizador {
-    * temporizador_id : INT <<PK>>
-    * pomodoro_id : INT <<FK>>
-    --
-    tempoAtual : INT
-    rodando : BOOLEAN
-}
-
-entity Notificacao {
-    * notificacao_id : INT <<PK>>
-    * pomodoro_id : INT <<FK>>
-    --
-    mensagem : STRING
-}
-
-entity Relatorio {
-    * relatorio_id : INT <<PK>>
-    * usuario_id : INT <<FK>>
-    --
-    dadosPomodoro : List<Pomodoro>
-}
-
-' Relacionamentos
-Usuario ||--o{ Pomodoro : "Usa"
-Usuario ||--o{ Relatorio : "Gera"
-Pomodoro ||--|| Temporizador : "Controla"
-Pomodoro ||--o{ Notificacao : "Exibe Alerta"
-Relatorio ||--o{ Pomodoro : "Usa dados"
-
+pomodoro ||--|| cronometro : "1:1"
 @enduml

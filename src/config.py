@@ -57,15 +57,14 @@ class Config():
 
             # Obter o resultado da consulta
             configuracoes = self.cursor.fetchone()
-
             if configuracoes:
                 tempo_estudo, tempo_pausa, quantidade_ciclos = configuracoes
                 return tempo_estudo, tempo_pausa, quantidade_ciclos
             else:
                 print("Nenhuma configuração encontrada, retornando os valores padrão.")
-                return 25, 5, 10  # Valores padrão
+                return 25, 5, 4  # Valores padrão
 
         except sqlite3.Error as e:
             print("Erro ao obter configurações:", e)
             traceback.print_exc()  # Exibe o traceback completo
-            return 25, 5, 10  # Valores padrão caso ocorra um erro no banco de dados
+            return 25, 5, 4  # Valores padrão caso ocorra um erro no banco de dados

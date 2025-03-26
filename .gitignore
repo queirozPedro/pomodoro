@@ -3,3 +3,10 @@
 
 # Cache
 /src/__pycache__
+
+# Banco de Dados 
+*db
+
+.vscode
+.pytest_cache
+

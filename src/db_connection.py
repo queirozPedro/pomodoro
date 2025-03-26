@@ -7,12 +7,9 @@ class DBConnection:
     def __init__(self, db_path="pomodoro.db"):
         if DBConnection._connection is None:
             try:
-                
                 self.db_path = db_path
-
                 self.connection = sqlite3.connect(self.db_path)
                 DBConnection._connection = self.connection
-                print("Conexão com o banco de dados estabelecida com sucesso.")
             except sqlite3.Error as e:
                 print(f"Erro ao conectar ao banco de dados: {e}")
 
@@ -32,6 +29,5 @@ class DBConnection:
         try:
             if self._connection:
                 self._connection.close()
-                print("Conexão fechada com sucesso.")
         except sqlite3.Error as e:
             print(f"Erro ao fechar a conexão: {e}")

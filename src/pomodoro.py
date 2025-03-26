@@ -3,11 +3,13 @@ from datetime import datetime
 from cronometro import Cronometro
 
 class Pomodoro():
-    def __init__(self, interface, config, db_connection = None):
+    def __init__(self, interface, config, db_connection):
         # Referência para a interface
         self.interface = interface
-        # self.conn = db_connection.get_connection()
-        # self.cursor = self.conn.cursor()
+        self.conn = db_connection.get_connection()
+        self.cursor = self.conn.cursor()
+        self.criar_tabelas()
+        
 
         # Configurações do pomodoro
         self.tempo_estudo = config.tempo_estudo
@@ -34,14 +36,11 @@ class Pomodoro():
         '''
         Inicia um novo ciclo de estudo ou pausa
         '''
-        if self.ciclo_atual >= self.quantidade_ciclos:
-            self.rodando = False
-            self.interface.atualizar_tempo_cronometro('', self.rodando)
-            return
 
-        # Se for o último ciclo e não for de estudo
+        # Se for o último ciclo e não for de estudo então não tem pausa
         if self.ciclo_atual + 1 >= self.quantidade_ciclos and not self.estudando:
             self.rodando = False
+            self.encerrar_pomodoro()
             self.interface.atualizar_tempo_cronometro('', self.rodando)
             return
 
@@ -92,6 +91,7 @@ class Pomodoro():
         else:
             self.trocar_ciclo()
 
+
     def trocar_ciclo(self):
         '''
         Alterna entre estudo e pausa, contando ciclos
@@ -108,6 +108,9 @@ class Pomodoro():
         '''
         Agendar a atualização do cronômetro a cada 1 segundo
         '''
+        if self.after_id:
+            self.interface.after_cancel(self.after_id)
+        
         if self.cronometro.esta_rodando():
             self.after_id = self.interface.after(1000, self.atualizar_tempo)
 
@@ -121,25 +124,40 @@ class Pomodoro():
             self.agendar_atualizacao()
 
 
-    def encerrar_pomodoro(self):
+    def encerrar_pomodoro(self, interrompido = False):
         '''
         Encerra o Pomodoro, limpa a janela e retorna à tela inicial
         '''
         if self.rodando:
+            if interrompido:
+                status = 'interrompido'
+            else:
+                status = 'encerrado'
             self.rodando = False
             if self.cronometro:
                 self.cronometro.pausar()
+                if self.estudando:
+                    tempo_estudado = ((self.tempo_estudo * 60) * (self.ciclo_atual + 1)) - self.cronometro.get_tempo_restante()
+                else:
+                    tempo_estudado = (self.tempo_estudo * 60) * (self.ciclo_atual + 1)
 
             if self.after_id:
                 self.interface.after_cancel(self.after_id)
+        else:
+            status = 'concluido'
+            tempo_estudado = self.tempo_estudo * self.quantidade_ciclos
         
+        print(status)
+        id_pomodoro = self.salvar_pomodoro(status)
+        self.salvar_cronometro(id_pomodoro, self.tempo_estudo, self.tempo_pausa, self.quantidade_ciclos, tempo_estudado)
+
         # Limpa a tela e exibe os controles iniciais
         self.interface.limpar_janela()
         self.interface.exibir_controles_iniciais()
 
 
     # Insere dados no cronômetro
-    def salvar_cronometro(self, id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado):
+    def salvar_cronometro(self, id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado = 0):
         try:
             self.cursor.execute("""
             INSERT INTO cronometro (id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado)
@@ -170,7 +188,7 @@ class Pomodoro():
     def criar_tabelas(self):
         self.cursor.execute("""
          CREATE TABLE IF NOT EXISTS pomodoro (
-            id SERIAL PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             data_hora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             status VARCHAR(20) NOT NULL
         )""")

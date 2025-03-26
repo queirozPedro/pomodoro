@@ -31,11 +31,15 @@ class Cronometro():
             self.pomodoro.atualizar_cronometro(self.formatar_tempo(), self.rodando)
 
 
-    def esta_rodando(self):
-        return self.rodando
-
-
     def formatar_tempo(self):
         minutos = self.tempo_restante // 60
         segundos = self.tempo_restante % 60
         return f"{minutos:02}:{segundos:02}"
+
+
+    def esta_rodando(self):
+        return self.rodando
+    
+
+    def get_tempo_restante(self):
+        return self.tempo_restante

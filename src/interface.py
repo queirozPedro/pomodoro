@@ -3,6 +3,7 @@ from tkinter import ttk
 import os
 from pomodoro import Pomodoro 
 from config import Config
+from db_connection import DBConnection
 
 class Interface(tk.Tk):
     def __init__(self):
@@ -39,14 +40,21 @@ class Interface(tk.Tk):
         
     def configurar_variaveis(self):
         
+        self.db_connection = DBConnection()
+        
+        self.config = Config(self.db_connection)
         self.opcoes_config = {
-            "Tempo de Estudo": 25,
-            "Tempo de Pausa": 5,
-            "Quantidade de Ciclos": 4
+            "Tempo de Estudo": self.config.tempo_estudo,
+            "Tempo de Pausa": self.config.tempo_pausa,
+            "Quantidade de Ciclos": self.config.quantidade_ciclos
         }
+
         self.opcao_selecionada = tk.StringVar(self)
         self.opcao_selecionada.set("Configurações")
         self.valor_var = tk.IntVar()
+
+        self.pomodoro = None
+        self.protocol("WM_DELETE_WINDOW", self.quando_fechar)
 
 
     # ---- Tela Inicial -----
@@ -116,7 +124,7 @@ class Interface(tk.Tk):
         '''
         self.botao_salvar = ttk.Button(self, text="Salvar", command=self.salvar_valor)
         self.botao_salvar.place(relx=0.5, rely=0.9, anchor="center")
-        self.botao_salvar.place_forget()  
+        self.botao_salvar.place_forget() 
 
 
     def mostrar_campo_valor(self, event=None):
@@ -153,10 +161,20 @@ class Interface(tk.Tk):
         '''
         Salva o valor editado no dicionário, imprime no console e esconde os botões
         '''
+
+
         opcao = self.opcao_selecionada.get()
         novo_valor = self.valor_var.get()
-        self.opcoes_config[opcao] = novo_valor  
+        self.opcoes_config[opcao] = novo_valor
 
+        # Isso percorre todos os valores de opçoes e aplica em config
+        valores = []
+        for valor in self.opcoes_config.values():
+            valores.append(valor)
+        self.config.tempo_estudo = valores[0]
+        self.config.tempo_pausa = valores[1]
+        self.config.quantidade_ciclos = valores[2]
+            
         self.frame_valor.place_forget()
         self.botao_salvar.place_forget()
         self.opcao_selecionada.set("Configurações")
@@ -167,11 +185,7 @@ class Interface(tk.Tk):
 
     def iniciar_pomodoro(self):
         self.limpar_janela()
-        self.pomodoro = Pomodoro(self, Config(
-            self.opcoes_config["Tempo de Estudo"], 
-            self.opcoes_config["Tempo de Pausa"], 
-            self.opcoes_config["Quantidade de Ciclos"]
-        ))
+        self.pomodoro = Pomodoro(self, self.config, self.db_connection)
         self.pomodoro.iniciar_pomodoro()
         self.criar_botoes_controle()
 
@@ -180,6 +194,8 @@ class Interface(tk.Tk):
         '''
         Remove todos os widgets da janela
         '''
+        if self.pomodoro:
+            self.pomodoro = None
         for widget in self.winfo_children():
             widget.destroy()
 
@@ -190,14 +206,14 @@ class Interface(tk.Tk):
         '''
         self.botao_pausar = self.criar_botao("Pausar", self.pomodoro.pausar_cronometro, 0.33, 0.75, 6)
         self.botao_reiniciar = self.criar_botao("Reiniciar", self.pomodoro.reiniciar_cronometro, 0.5, 0.75, 6)
-        self.botao_sair = self.criar_botao("Sair", self.pomodoro.encerrar_pomodoro, 0.67, 0.75, 6)
+        self.botao_encerrar = self.criar_botao("Encerrar", self.pomodoro.encerrar_pomodoro, 0.67, 0.75, 6)
 
 
     # ---- Atualizar Tela ----
 
 
-    def atualizar_tempo_cronometro(self, novo_texto, rodando = True):
-        if not hasattr(self, 'label_tempo'):
+    def atualizar_tempo_cronometro(self, novo_texto, rodando=True):
+        if not hasattr(self, 'label_tempo') or not self.label_tempo.winfo_exists():
             self.label_tempo = tk.Label(self, text="", font=("Arial", 24))
             self.label_tempo.place(relx=0.5, rely=0.4, anchor="center")
 
@@ -206,3 +222,10 @@ class Interface(tk.Tk):
         else:
             self.limpar_janela()
             self.exibir_controles_iniciais()
+
+
+    def quando_fechar(self):
+        if self.pomodoro:
+            self.pomodoro.encerrar_pomodoro(True)
+        self.db_connection.close_connection()  
+        self.destroy() 

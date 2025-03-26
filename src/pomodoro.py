@@ -1,6 +1,7 @@
 import sqlite3
-from datetime import datetime
+from datetime import datetime, time
 from cronometro import Cronometro
+import winsound
 
 class Pomodoro():
     def __init__(self, interface, config, db_connection):
@@ -40,16 +41,19 @@ class Pomodoro():
         # Se for o último ciclo e não for de estudo então não tem pausa
         if self.ciclo_atual + 1 >= self.quantidade_ciclos and not self.estudando:
             self.rodando = False
+            self.tocar_bipe_pausar()
             self.encerrar_pomodoro()
             self.interface.atualizar_tempo_cronometro('', self.rodando)
             return
 
         if self.estudando:
+            self.tocar_bipe_iniciar()
             self.cronometro = Cronometro(self, self.tempo_estudo)
-            self.interface.atualizar_tempo_cronometro(f"Estudando\n{self.cronometro.formatar_tempo()}")
+            self.interface.atualizar_tempo_cronometro(f"Estudando\n\n{self.cronometro.formatar_tempo()}")
         else:
+            self.tocar_bipe_pausar()
             self.cronometro = Cronometro(self, self.tempo_pausa)
-            self.interface.atualizar_tempo_cronometro(f"Pausa\n{self.cronometro.formatar_tempo()}")
+            self.interface.atualizar_tempo_cronometro(f"Pausa\n\n{self.cronometro.formatar_tempo()}")
 
         self.cronometro.iniciar()
         self.agendar_atualizacao()
@@ -146,8 +150,8 @@ class Pomodoro():
         else:
             status = 'concluido'
             tempo_estudado = self.tempo_estudo * self.quantidade_ciclos
-        
-        print(status)
+ 
+
         id_pomodoro = self.salvar_pomodoro(status)
         self.salvar_cronometro(id_pomodoro, self.tempo_estudo, self.tempo_pausa, self.quantidade_ciclos, tempo_estudado)
 
@@ -156,8 +160,10 @@ class Pomodoro():
         self.interface.exibir_controles_iniciais()
 
 
-    # Insere dados no cronômetro
     def salvar_cronometro(self, id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado = 0):
+        '''
+        Insere dados no cronômetro
+        '''
         try:
             self.cursor.execute("""
             INSERT INTO cronometro (id_pomodoro, tempo_estudo, tempo_pausa, quantidade_ciclos, tempo_estudado)
@@ -170,8 +176,10 @@ class Pomodoro():
             return False
 
 
-    # Salva um novo registro de Pomodoro
     def salvar_pomodoro(self, status):
+        '''
+        Salva um novo registro de Pomodoro
+        '''
         try:
             data_hora = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
             self.cursor.execute("""
@@ -204,3 +212,13 @@ class Pomodoro():
         )""")
         
         self.conn.commit()
+
+
+    def tocar_bipe_iniciar(self, frequencia=1000, duracao=300):
+        winsound.Beep(frequencia, duracao)  # Toca o bipe
+    
+
+    def tocar_bipe_pausar(self, frequencia=2400, duracao=300):
+        winsound.Beep(frequencia, duracao)  # Toca o bipe
+        
+            

@@ -44,13 +44,20 @@ class Relatorio:
                 AND data_hora >= ?
             """, (data_limite,))
             total_concluidos = self.cursor.fetchone()[0]
+            
+            # Total de pomodoros
+            self.cursor.execute("""
+                SELECT COUNT(*) 
+                FROM pomodoro 
+                WHERE data_hora >= ?
+            """, (data_limite,))
+            total_pomodoros = self.cursor.fetchone()[0]
 
             # Tempo total estudado
             self.cursor.execute("""
                 SELECT SUM(c.tempo_estudado)
                 FROM cronometro c
                 JOIN pomodoro p ON c.id_pomodoro = p.id
-                WHERE p.status = 'concluido'
                 AND p.data_hora >= ?
             """, (data_limite,))
             tempo_total = self.cursor.fetchone()[0] or 0
@@ -58,7 +65,7 @@ class Relatorio:
             return {
                 'total_concluidos': total_concluidos,
                 'tempo_total': tempo_total,
-                'tempo_medio': tempo_total / total_concluidos if total_concluidos > 0 else 0
+                'tempo_medio': tempo_total // total_pomodoros if total_pomodoros > 0 else 0
             }
         except sqlite3.Error as e:
             raise Exception(f"Erro ao buscar estatísticas: {e}")
@@ -88,9 +95,15 @@ class Relatorio:
             if label_estatisticas:
                 estatisticas = self.buscar_estatisticas()
                 texto = (f"Pomodoros concluídos: {estatisticas['total_concluidos']}\n"
-                        f"Tempo total estudado: {estatisticas['tempo_total']} min\n"
-                        f"Tempo médio por pomodoro: {estatisticas['tempo_medio']:.1f} min")
+                        f"Tempo total estudado: {self.formatar_tempo(estatisticas['tempo_total'])}\n"
+                        f"Tempo médio por pomodoro: {self.formatar_tempo(estatisticas['tempo_medio'])}")
                 label_estatisticas.config(text=texto)
 
         except Exception as e:
             raise Exception(f"Erro ao atualizar interface: {e}")
+        
+
+    def formatar_tempo(self, tempo):
+        minutos = tempo // 60
+        segundos = tempo % 60
+        return f"{minutos:02}:{segundos:02}"

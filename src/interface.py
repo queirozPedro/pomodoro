@@ -26,6 +26,7 @@ class Interface(tk.Tk):
         self.largura_janela = 250
         self.minsize(350, 250)
         self.maxsize(350, 250)
+        self.configure(bg="#FF6347")
         self.geometry(f"{str(self.altura_janela)}x{str(self.largura_janela)}")
         imagem_logo = os.path.join("imagens", "pomodoroLogo.png")
         self.wm_iconphoto(False, tk.PhotoImage(file=imagem_logo))
@@ -67,9 +68,11 @@ class Interface(tk.Tk):
         '''
         self.botao_iniciar = self.criar_botao("Iniciar Pomodoro", self.iniciar_pomodoro, 0.5, 0.3)
         self.dropdown_menu = self.criar_dropdown()
+        self.botao_relatorio = self.criar_botao("Relatórios", self.mostrar_relatorio_simples, 0.5, 0.5)
         self.criar_campo_valor()
-        self.criar_botao_salvar()
-        self.criar_botao_relatorio() 
+        self.botao_salvar = self.criar_botao("Salvar", self.salvar_valor, 0.5, 0.9)
+        self.botao_salvar.place_forget() 
+
 
 
     def criar_botao(self, texto, comando, rel_x, rel_y, largura= None):
@@ -77,9 +80,11 @@ class Interface(tk.Tk):
         Cria um botão com base no texto, no comando e na posição vertical
         '''
         if largura != None:
-            botao = tk.Button(self, text=texto, command=comando, width=largura)
+            botao = tk.Button(self, text=texto, command=comando, width=largura, bg="#77DD77", fg="black", 
+                   activebackground="#FF4500", activeforeground="white")
         else:
-            botao = tk.Button(self, text=texto, command=comando)
+            botao = tk.Button(self, text=texto, command=comando, bg="#77DD77", fg="black", 
+                   activebackground="#FF4500", activeforeground="white")
         botao.place(relx=rel_x, rely=rel_y, anchor="center")
         return botao
 
@@ -97,22 +102,8 @@ class Interface(tk.Tk):
         combobox.place(relx=0.5, rely=0.7, anchor="center")
         combobox.bind("<<ComboboxSelected>>", self.mostrar_campo_valor)
         return combobox
-    
-    # Método para criar botão de gerar relatório na interface
-    def criar_botao_relatorio(self):
-        """
-        Cria e posiciona o botão de relatórios na interface.
-        """
-        botao_relatorio = ttk.Button(
-            self,
-            text="Relatórios",
-            command=self.mostrar_relatorio_simples
-        )
-        botao_relatorio.place(relx=0.5, rely=0.5, anchor="center")
-        return botao_relatorio
 
 
-# Método para criar uma nova janela para exibir os relatorios
     def mostrar_relatorio_simples(self):
         """Exibe o relatório usando o método existente da classe Relatorio"""
         # Cria janela básica
@@ -152,27 +143,23 @@ class Interface(tk.Tk):
         '''
         Cria um campo para editar o valor da opção
         '''
-        self.frame_valor = ttk.Frame(self)
-        self.valor_entry = ttk.Entry(self.frame_valor, textvariable=self.valor_var, width=5, justify="center")
+        # Frame para os elementos
+        self.frame_valor = tk.Frame(self)
+        # Entry para editar o valor
+        self.valor_entry = tk.Entry(self.frame_valor, textvariable=self.valor_var, width=5, justify="center", bg="#77DD77", fg="black") 
 
-        self.botao_menos = ttk.Button(self.frame_valor, text="-", width=2, command=self.decrementar_valor)
-        self.botao_mais = ttk.Button(self.frame_valor, text="+", width=2, command=self.incrementar_valor)
+        # Botões para incrementar e decrementar o valor
+        self.botao_menos = tk.Button(self.frame_valor, text="-", width=2, command=self.decrementar_valor, bg="#77DD77", fg="black", activebackground="#FF4500", activeforeground="white")
+        self.botao_mais = tk.Button(self.frame_valor, text="+", width=2, command=self.incrementar_valor, bg="#77DD77", fg="black", activebackground="#FF4500", activeforeground="white")
 
+        # Organizando os botões e o campo de entrada
         self.botao_menos.pack(side="left", padx=2)
         self.valor_entry.pack(side="left", padx=2)
         self.botao_mais.pack(side="left", padx=2)
 
+        # Posicionamento do frame
         self.frame_valor.place(relx=0.5, rely=0.8, anchor="center")
-        self.frame_valor.place_forget()  
-
-
-    def criar_botao_salvar(self):
-        '''
-        Cria o botão para salvar a edição do valor
-        '''
-        self.botao_salvar = ttk.Button(self, text="Salvar", command=self.salvar_valor)
-        self.botao_salvar.place(relx=0.5, rely=0.9, anchor="center")
-        self.botao_salvar.place_forget() 
+        self.frame_valor.place_forget()  # Ocultar o frame inicialmente
 
 
     def mostrar_campo_valor(self, event=None):
@@ -209,8 +196,6 @@ class Interface(tk.Tk):
         '''
         Salva o valor editado no dicionário, imprime no console e esconde os botões
         '''
-
-
         opcao = self.opcao_selecionada.get()
         novo_valor = self.valor_var.get()
         self.opcoes_config[opcao] = novo_valor
@@ -262,7 +247,7 @@ class Interface(tk.Tk):
 
     def atualizar_tempo_cronometro(self, novo_texto, rodando=True):
         if not hasattr(self, 'label_tempo') or not self.label_tempo.winfo_exists():
-            self.label_tempo = tk.Label(self, text="", font=("Arial", 24))
+            self.label_tempo = tk.Label(self, text="", font=("Comic Sans MS", 24), bg="#FF6347", fg="white")
             self.label_tempo.place(relx=0.5, rely=0.4, anchor="center")
 
         if rodando:

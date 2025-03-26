@@ -11,12 +11,20 @@ class Relatorio:
     # Faz a busca dos pomodoros que estão armazenados no banco de dados
     def buscar_pomodoros(self):
         try:
-            data_limite = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")  # Busca nos últimos 7 dias
             self.cursor.execute("""
-                SELECT id, data_hora, status FROM pomodoro
-                WHERE DATE(data_hora) >= ?
-                ORDER BY data_hora ASC
-            """, (data_limite,))
+                SELECT 
+                    p.id,
+                    p.data_hora,
+                    p.status,
+                    c.tempo_estudado,
+                    c.tempo_estudo,
+                    c.tempo_pausa,
+                    c.quantidade_ciclos
+                FROM pomodoro p
+                JOIN cronometro c ON p.id = c.id_pomodoro
+                ORDER BY p.data_hora DESC
+                LIMIT 50
+            """)
             return self.cursor.fetchall()
         except sqlite3.Error as e:
             raise Exception(f"Erro ao buscar pomodoros: {e}")
@@ -24,22 +32,26 @@ class Relatorio:
 
     # Faz uma busca e a estatística dos pomodoros armazenados
     def buscar_estatisticas(self):
+        """Calcula estatísticas dos últimos 7 dias"""
         try:
-            data_limite = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")  # busca nos últimos 7 dias
-
+            data_limite = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
+            
             # Total de pomodoros concluídos
             self.cursor.execute("""
-                SELECT COUNT(*) FROM pomodoro
-                WHERE DATE(data_hora) >= ? AND status = 'Concluído'
+                SELECT COUNT(*) 
+                FROM pomodoro 
+                WHERE status = 'concluido' 
+                AND data_hora >= ?
             """, (data_limite,))
             total_concluidos = self.cursor.fetchone()[0]
 
-            # Faz a estatística do tempo total estudado
+            # Tempo total estudado
             self.cursor.execute("""
-                SELECT SUM(c.tempo_estudado) 
+                SELECT SUM(c.tempo_estudado)
                 FROM cronometro c
                 JOIN pomodoro p ON c.id_pomodoro = p.id
-                WHERE DATE(p.data_hora) >= ? AND p.status = 'Concluído'
+                WHERE p.status = 'concluido'
+                AND p.data_hora >= ?
             """, (data_limite,))
             tempo_total = self.cursor.fetchone()[0] or 0
 
@@ -48,15 +60,22 @@ class Relatorio:
                 'tempo_total': tempo_total,
                 'tempo_medio': tempo_total / total_concluidos if total_concluidos > 0 else 0
             }
-
         except sqlite3.Error as e:
             raise Exception(f"Erro ao buscar estatísticas: {e}")
+
+    def formatar_data(self, data_original):
+        """Formata a data para exibição"""
+        try:
+            return datetime.strptime(data_original, "%d-%m-%Y %H:%M:%S").strftime("%d/%m/%Y %H:%M")
+        except:
+            return data_original
 
 
     # Exibe as estatísticas na interface
     def atualizar_interface(self, treeview, label_estatisticas=None):
+        """Atualiza a interface com dados dos pomodoros"""
         try:
-            # Limpa a tabela antes de preencher
+            # Limpa a treeview
             for item in treeview.get_children():
                 treeview.delete(item)
 
@@ -65,12 +84,12 @@ class Relatorio:
             for registro in registros:
                 treeview.insert("", "end", values=registro)
 
-            # Atualiza as estatísticas se o label foi fornecido
+            # Atualiza estatísticas se o label foi fornecido
             if label_estatisticas:
                 estatisticas = self.buscar_estatisticas()
                 texto = (f"Pomodoros concluídos: {estatisticas['total_concluidos']}\n"
-                         f"Tempo total estudado: {estatisticas['tempo_total']} min\n"
-                         f"Tempo médio por pomodoro: {estatisticas['tempo_medio']:.1f} min")
+                        f"Tempo total estudado: {estatisticas['tempo_total']} min\n"
+                        f"Tempo médio por pomodoro: {estatisticas['tempo_medio']:.1f} min")
                 label_estatisticas.config(text=texto)
 
         except Exception as e:

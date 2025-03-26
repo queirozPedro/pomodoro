@@ -4,6 +4,7 @@ import os
 from pomodoro import Pomodoro 
 from config import Config
 from db_connection import DBConnection
+from relatorio import Relatorio
 
 class Interface(tk.Tk):
     def __init__(self):
@@ -68,6 +69,7 @@ class Interface(tk.Tk):
         self.dropdown_menu = self.criar_dropdown()
         self.criar_campo_valor()
         self.criar_botao_salvar()
+        self.criar_botao_relatorio() 
 
 
     def criar_botao(self, texto, comando, rel_x, rel_y, largura= None):
@@ -95,7 +97,53 @@ class Interface(tk.Tk):
         combobox.place(relx=0.5, rely=0.7, anchor="center")
         combobox.bind("<<ComboboxSelected>>", self.mostrar_campo_valor)
         return combobox
+    
+    # Método para criar botão de gerar relatório na interface
+    def criar_botao_relatorio(self):
+        """
+        Cria e posiciona o botão de relatórios na interface.
+        """
+        botao_relatorio = ttk.Button(
+            self,
+            text="Relatórios",
+            command=self.mostrar_relatorio_simples
+        )
+        botao_relatorio.place(relx=0.5, rely=0.5, anchor="center")
+        return botao_relatorio
 
+
+# Método para criar uma nova janela para exibir os relatorios
+    def mostrar_relatorio_simples(self):
+        """Exibe o relatório usando o método existente da classe Relatorio"""
+        # Cria janela básica
+        janela = tk.Toplevel(self)
+        janela.title("Relatório Pomodoro")
+        janela.geometry("500x400")
+        
+        # Cria os componentes mínimos
+        treeview = ttk.Treeview(janela, columns=("ID", "Data", "Status", "Tempo"), show="headings")
+        for col in ("ID", "Data", "Status", "Tempo"):
+            treeview.heading(col, text=col)
+        
+        scrollbar = ttk.Scrollbar(janela, orient="vertical", command=treeview.yview)
+        treeview.configure(yscrollcommand=scrollbar.set)
+        
+        lbl_estatisticas = ttk.Label(janela, text="", justify="left")
+        
+        # Layout
+        treeview.pack(side="top", fill="both", expand=True, padx=10, pady=10)
+        scrollbar.pack(side="right", fill="y")
+        lbl_estatisticas.pack(side="bottom", fill="x", padx=10, pady=10)
+        
+        # Chama o método existente da classe Relatorio
+        try:
+            relatorio = Relatorio(self.db_connection)
+            relatorio.atualizar_interface(
+                treeview=treeview,
+                label_estatisticas=lbl_estatisticas
+            )
+        except Exception as e:
+            tk.messagebox.showerror("Erro", f"Falha ao gerar relatório:\n{str(e)}")
 
     # ---- Configurações ----
 

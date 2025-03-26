@@ -10,4 +10,24 @@ Links para acesso da documentação
 
 Diagramas de Classes e de Casos de Uso estão disponíveis na pasta [**docs/diagramas**](https://github.com/queirozPedro/pomodoro/tree/main/docs/diagramas) assim como o Modelo Lógico de Dados.
 
+
 A <strong>Definição do Projeto</strong> e o <strong>Plano Especificação Formal do Projeto</strong> estão disponíveis na pasta [**docs**](https://github.com/queirozPedro/pomodoro/tree/main/docs).
+
+ **REQUISITOS DO PROJETO**
+- RF001 Cadastrar Configurações
+- RF002 Exibição do Cronômetro
+- RF003 Notificação de Pausa
+- RF004 Alarme para Iniciar
+- RF005 Gerar Relatório Gráfico
+- RF006 Manipular Cronômetro (Pausar e Resetar)
+- RNF001 Facilidade de Uso da Interface (Usabilidade)
+
+**TESTES DO SISTEMA**
+### os testes foram realizados utilizando o pytest
+### Para realizar os testes execute o seguinte código: 
+<code>
+python -m venv venv
+
+pip install pytest
+</code>
+

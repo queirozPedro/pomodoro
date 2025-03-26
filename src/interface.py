@@ -246,6 +246,9 @@ class Interface(tk.Tk):
 
 
     def atualizar_tempo_cronometro(self, novo_texto, rodando=True):
+        '''
+        Recebe o texto 
+        '''
         if not hasattr(self, 'label_tempo') or not self.label_tempo.winfo_exists():
             self.label_tempo = tk.Label(self, text="", font=("Comic Sans MS", 24), bg="#FF6347", fg="white")
             self.label_tempo.place(relx=0.5, rely=0.4, anchor="center")

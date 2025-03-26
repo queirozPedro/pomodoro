@@ -63,11 +63,12 @@ class Pomodoro():
         '''
         Pausa ou continua o cronômetro atual
         '''
+        if self.after_id:
+            self.interface.after_cancel(self.after_id) 
+        
         if self.rodando:
             self.rodando = False
             self.cronometro.pausar()
-            if self.after_id:
-                self.interface.after_cancel(self.after_id) 
         else:
             self.rodando = True
             self.cronometro.iniciar()
@@ -78,10 +79,11 @@ class Pomodoro():
         '''
         Reinicia o Pomodoro e o ciclo
         '''
-        self.ciclo_atual = 0
-        self.estudando = True
         if self.after_id:
             self.interface.after_cancel(self.after_id)
+        
+        self.ciclo_atual = 0
+        self.estudando = True
         self.iniciar_ciclo()
 
 
@@ -132,6 +134,9 @@ class Pomodoro():
         '''
         Encerra o Pomodoro, limpa a janela e retorna à tela inicial
         '''
+        if self.after_id:
+            self.interface.after_cancel(self.after_id)
+        
         if self.rodando:
             if interrompido:
                 status = 'interrompido'
@@ -145,8 +150,6 @@ class Pomodoro():
                 else:
                     tempo_estudado = (self.tempo_estudo * 60) * (self.ciclo_atual + 1)
 
-            if self.after_id:
-                self.interface.after_cancel(self.after_id)
         else:
             status = 'concluido'
             tempo_estudado = self.tempo_estudo * self.quantidade_ciclos
